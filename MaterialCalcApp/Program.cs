@@ -8,9 +8,9 @@ namespace MaterialCalc
 {
     internal class Program
     {
-        public static string TableRow(string cellName, string cellMaterial, string cellParam)
+        public static string TableRow(string cellName, string cellMaterial, string cellParam, string cellQuantiti)
         {
-            string tableRow = string.Format("|{0,20}|{1,20}|{2,20}|", cellName, cellMaterial, cellParam);
+            string tableRow = string.Format("|{0,20}|{1,20}|{2,20}|{3,20}|", cellName, cellMaterial, cellParam,cellQuantiti);
             return tableRow;
         }
 
@@ -44,6 +44,11 @@ namespace MaterialCalc
                 return this.name;
             }
 
+            public int GetCount()
+            {
+                return this.count;
+            }
+
             public void AddAssemble (Assemble assemble)
             {
                 assemblesList.Add(assemble);
@@ -53,7 +58,7 @@ namespace MaterialCalc
             {
                 foreach (Assemble one in assemblesList)
                     {
-                        Console.WriteLine(one.GetName());
+                        Console.WriteLine("|{0,20}|{1,20}|{2,20}|{3,20}|",one.GetName(),"","", one.GetCount());
                     }
             }
 
@@ -66,7 +71,7 @@ namespace MaterialCalc
             {
                 foreach (Part one in partList)
                     {
-                       string tableRow = TableRow(one.GetName(), one.GetMaterial(), Convert.ToString(one.GetParam()));
+                       string tableRow = TableRow(one.GetName(), one.GetMaterial(), Convert.ToString(one.GetParam()),Convert.ToString(one.GetQuantiti()));
                        Console.WriteLine(tableRow);
                     }
             }
@@ -78,9 +83,10 @@ namespace MaterialCalc
             string name;
             string material_name;
             double param;
+            int quantity;
 
  
-            public Part(string name, string material,string param)
+            public Part(string name, string material,string param,string quantity)
             {
                 if (name=="")
                 {
@@ -93,12 +99,17 @@ namespace MaterialCalc
                 }
                 if (param == "")
                 {
-                    param = "0";
+                    param = "1";
+                }
+                if (quantity == "")
+                {
+                    quantity="1";
                 }
 
                 this.name = name.ToLower();
                 this.material_name = material.ToLower();
                 this.param =Convert.ToDouble( param);
+                this.quantity=Convert.ToInt32( quantity);
             }
 
             public void Print()
@@ -121,6 +132,11 @@ namespace MaterialCalc
             {
                 return this.param;
             }
+            public double GetQuantiti()
+            {
+                return this.quantity;
+            }
+
         };
 
         static void Main(string[] args)
@@ -152,19 +168,21 @@ namespace MaterialCalc
                 string material = Console.ReadLine();
                 Console.Write("Введите контролируемый параметр:");
                 string param = Console.ReadLine();
+                Console.Write("Введите кол-во:");
+                string quantity = Console.ReadLine();
 
                 if (param.Contains('.'))
                 {
                    param = param.Replace('.', ',');
                 }
-                Part part = new Part(name, material,param);
+                Part part = new Part(name, material,param,quantity);
                 assemble.AddPart(part);
             }
 
             while (true)
             {
                 Console.Clear();
-                string tableRow=TableRow("Название", "Материал", "Параметр");
+                string tableRow=TableRow("Название", "Материал", "Параметр", "Количество");
                 Console.WriteLine(tableRow);
                     for (int i=0; i < tableRow.Length; i++)
                     {
@@ -172,8 +190,9 @@ namespace MaterialCalc
                     }
                     Console.Write('\n');
 
-                   //assemble.ShowAssebleList();
+                   assemble.ShowAssebleList();
                    assemble.ShowPartList();
+                Console.ReadLine();
             }
             
             

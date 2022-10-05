@@ -14,6 +14,50 @@ namespace MaterialCalc
             return tableRow;
         }
 
+        struct Assemble
+        {
+            string name;
+            int count;
+            List <Assemble> assemblesList;
+            List <Part> partList;
+           
+            public Assemble (string name, int count)
+            {
+                if (name=="")
+                {
+                    name = "Сборка";
+                }
+
+                if (count==0)
+                {
+                    count =1;
+                }
+
+                this.name = name;
+                this.count = count;
+                assemblesList=new List<Assemble>(); //здесь лежат подсборки
+                partList=new List<Part>();//здесь лежат детали
+            }
+
+            public void AddAssemble (Assemble assemble)
+            {
+                assemblesList.Add(assemble);
+            }
+             public void AddPart (Part part)
+            {
+                partList.Add(part);
+            }
+
+            public void ShowPartList()
+            {
+                foreach (Part one in partList)
+                    {
+                        Console.WriteLine(one.GetName());
+                    }
+            }
+           
+        }
+
         struct Part
         {
             string name;
@@ -65,11 +109,18 @@ namespace MaterialCalc
         };
 
         static void Main(string[] args)
-        {  
-            List<Part> partList = new List<Part>();
+        {   
+            List <Part> partList=new List<Part>();
+            Console.Write("Название изделия:");
+            string assembleName=Console.ReadLine();
+            
+            Console.Write("Кол-во изделий:");
+            int totalCount=Convert.ToInt32(Console.ReadLine());
+           
+            Assemble assemble= new Assemble(assembleName,totalCount);
+            
             while (true)
             {
-
                 Console.Clear();
                 if (partList.Count > 0)
                 {
@@ -88,12 +139,11 @@ namespace MaterialCalc
                     Console.Write('\n');
                 }
 
+               
                 Console.Write("Введите название детали:");
                 string name = Console.ReadLine();
-                Console.Write('\n');
                 Console.Write("Введите название материала:");
                 string material = Console.ReadLine();
-                Console.Write('\n');
                 Console.Write("Введите контролируемый параметр:");
                 string param = Console.ReadLine();
 
@@ -104,10 +154,9 @@ namespace MaterialCalc
 
                 Part part = new Part(name, material,param);
                 partList.Add(part);
-               
+                assemble.AddPart(part);
             }
-           
-
+            
         }
     }
 }

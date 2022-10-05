@@ -39,10 +39,24 @@ namespace MaterialCalc
                 partList=new List<Part>();//здесь лежат детали
             }
 
+            public string GetName()
+            {
+                return this.name;
+            }
+
             public void AddAssemble (Assemble assemble)
             {
                 assemblesList.Add(assemble);
             }
+
+            public void ShowAssebleList()
+            {
+                foreach (Assemble one in assemblesList)
+                    {
+                        Console.WriteLine(one.GetName());
+                    }
+            }
+
              public void AddPart (Part part)
             {
                 partList.Add(part);
@@ -52,7 +66,8 @@ namespace MaterialCalc
             {
                 foreach (Part one in partList)
                     {
-                        Console.WriteLine(one.GetName());
+                       string tableRow = TableRow(one.GetName(), one.GetMaterial(), Convert.ToString(one.GetParam()));
+                       Console.WriteLine(tableRow);
                     }
             }
            
@@ -110,36 +125,27 @@ namespace MaterialCalc
 
         static void Main(string[] args)
         {   
-            List <Part> partList=new List<Part>();
+            //List <Part> partList=new List<Part>();
             Console.Write("Название изделия:");
             string assembleName=Console.ReadLine();
             
             Console.Write("Кол-во изделий:");
             int totalCount=Convert.ToInt32(Console.ReadLine());
            
-            Assemble assemble= new Assemble(assembleName,totalCount);
-            
-            while (true)
-            {
-                Console.Clear();
-                if (partList.Count > 0)
-                {
-                    string tableRow=TableRow("Название", "Материал", "Параметр");
-                    Console.WriteLine(tableRow);
-                    for (int i=0; i < tableRow.Length; i++)
-                    {
-                        Console.Write('_');
-                    }
-                    Console.Write('\n');
-                    foreach (Part one in partList)
-                    {
-                        tableRow = TableRow(one.GetName(), one.GetMaterial(), Convert.ToString(one.GetParam()));
-                        Console.WriteLine(tableRow);
-                    }
-                    Console.Write('\n');
-                }
+            Assemble assemble=new Assemble(assembleName,totalCount);
 
-               
+            Console.Write("Кол-во подсборок в узле:");
+            int subAssembleCount=Convert.ToInt32(Console.ReadLine());
+            for (int i=1; i <= subAssembleCount; i++)
+            {
+                Assemble subAssemble = new Assemble($"Подсборка_{i}",i);
+                assemble.AddAssemble(subAssemble);
+            }
+      
+            Console.Write("Кол-во деталей в основной сборке:");
+            int partCount=Convert.ToInt32(Console.ReadLine());
+            for (int i=1; i <= subAssembleCount; i++)
+            {   
                 Console.Write("Введите название детали:");
                 string name = Console.ReadLine();
                 Console.Write("Введите название материала:");
@@ -151,11 +157,25 @@ namespace MaterialCalc
                 {
                    param = param.Replace('.', ',');
                 }
-
                 Part part = new Part(name, material,param);
-                partList.Add(part);
                 assemble.AddPart(part);
             }
+
+            while (true)
+            {
+                Console.Clear();
+                string tableRow=TableRow("Название", "Материал", "Параметр");
+                Console.WriteLine(tableRow);
+                    for (int i=0; i < tableRow.Length; i++)
+                    {
+                        Console.Write('_');
+                    }
+                    Console.Write('\n');
+
+                   //assemble.ShowAssebleList();
+                   assemble.ShowPartList();
+            }
+            
             
         }
     }

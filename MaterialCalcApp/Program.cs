@@ -14,7 +14,7 @@ namespace MaterialCalc
             return tableRow;
         }
 
-        struct Assemble
+        public struct Assemble
         {
             string name;
             int count;
@@ -62,6 +62,11 @@ namespace MaterialCalc
                     }
             }
 
+            public Assemble GetAssembleItem(int index)
+            {
+                return assemblesList[index];
+            }
+
              public void AddPart (Part part)
             {
                 partList.Add(part);
@@ -78,7 +83,7 @@ namespace MaterialCalc
            
         }
 
-        struct Part
+        public struct  Part
         {
             string name;
             string material_name;
@@ -139,17 +144,8 @@ namespace MaterialCalc
 
         };
 
-        static void Main(string[] args)
-        {   
-            //List <Part> partList=new List<Part>();
-            Console.Write("Название изделия:");
-            string assembleName=Console.ReadLine();
-            
-            Console.Write("Кол-во изделий:");
-            int totalCount=Convert.ToInt32(Console.ReadLine());
-           
-            Assemble assemble=new Assemble(assembleName,totalCount);
-
+        public static void AssembleFill(Assemble assemble)
+        {
             Console.Write("Кол-во подсборок в узле:");
             int subAssembleCount=Convert.ToInt32(Console.ReadLine());
             for (int i=1; i <= subAssembleCount; i++)
@@ -192,8 +188,26 @@ namespace MaterialCalc
 
                    assemble.ShowAssebleList();
                    assemble.ShowPartList();
-                Console.ReadLine();
+                 Console.Write("Выбери редактируюмую подсборку:");
+                 int answer=Convert.ToInt32(Console.ReadLine());
+                
+                Assemble assembleItem=assemble.GetAssembleItem(answer);
+                AssembleFill(assembleItem);
             }
+        }
+
+        static void Main(string[] args)
+        {   
+            //List <Part> partList=new List<Part>();
+            Console.Write("Название изделия:");
+            string assembleName=Console.ReadLine();
+            
+            Console.Write("Кол-во изделий:");
+            int totalCount=Convert.ToInt32(Console.ReadLine());
+           
+            Assemble assemble=new Assemble(assembleName,totalCount);
+            AssembleFill(assemble);
+            
             
             
         }

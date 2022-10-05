@@ -80,6 +80,15 @@ namespace MaterialCalc
                        Console.WriteLine(tableRow);
                     }
             }
+            public List<Assemble> GetAssembleList()
+            {
+                return assemblesList;
+            }
+
+            public List<Part> GetPartList()
+            {
+                return partList;
+            }
            
         }
 
@@ -156,7 +165,7 @@ namespace MaterialCalc
       
             Console.Write("Кол-во деталей в основной сборке:");
             int partCount=Convert.ToInt32(Console.ReadLine());
-            for (int i=1; i <= subAssembleCount; i++)
+            for (int i=1; i <= partCount; i++)
             {   
                 Console.Write("Введите название детали:");
                 string name = Console.ReadLine();
@@ -174,25 +183,38 @@ namespace MaterialCalc
                 Part part = new Part(name, material,param,quantity);
                 assemble.AddPart(part);
             }
+        }
 
-            while (true)
+        public static void showAssembles(Assemble assemble)
+        {
+            Console.WriteLine("|{0,20}|{1,20}|{2,20}|{3,20}|",assemble.GetName(),"","", assemble.GetCount());
+        
+            foreach (Assemble assemleItem in assemble.GetAssembleList())
+            {   
+                showAssembles(assemleItem);
+            }
+            foreach (Part partItem in assemble.GetPartList())
             {
-                Console.Clear();
-                string tableRow=TableRow("Название", "Материал", "Параметр", "Количество");
-                Console.WriteLine(tableRow);
-                    for (int i=0; i < tableRow.Length; i++)
-                    {
-                        Console.Write('_');
-                    }
-                    Console.Write('\n');
+                 string tableRow = TableRow(partItem.GetName(), partItem.GetMaterial(), Convert.ToString(partItem.GetParam()),Convert.ToString(partItem.GetQuantiti()));
+                 Console.WriteLine(tableRow);
+            }
+           
+            return;
+        }
 
-                   assemble.ShowAssebleList();
-                   assemble.ShowPartList();
-                 Console.Write("Выбери редактируюмую подсборку:");
-                 int answer=Convert.ToInt32(Console.ReadLine());
-                
-                Assemble assembleItem=assemble.GetAssembleItem(answer);
-                AssembleFill(assembleItem);
+        public static void SubAssembleFill(Assemble assemble)
+        {    Console.WriteLine("Начинаем?");
+            foreach (Assemble assemleItem in assemble.GetAssembleList())
+            {
+               AssembleFill(assemleItem);
+                Console.WriteLine("Закончить?");
+               string key=Console.ReadLine();
+                if (key == "y")
+                {
+                    return;
+                }
+               SubAssembleFill(assemleItem);
+               
             }
         }
 
@@ -207,6 +229,25 @@ namespace MaterialCalc
            
             Assemble assemble=new Assemble(assembleName,totalCount);
             AssembleFill(assemble);
+            while (true)
+            {
+                Console.Clear();
+                string tableRow=TableRow("Название", "Материал", "Параметр", "Количество");
+                Console.WriteLine(tableRow);
+                    for (int i=0; i < tableRow.Length; i++)
+                    {
+                        Console.Write('_');
+                    }
+                    Console.Write('\n');
+
+                 showAssembles(assemble);
+
+                 //Console.Write("Выбери редактируюмую подсборку:");
+                 //int answer=Convert.ToInt32(Console.ReadLine())-1;
+                 SubAssembleFill(assemble);
+            }
+
+            
             
             
             

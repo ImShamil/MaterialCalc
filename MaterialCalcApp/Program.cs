@@ -203,8 +203,8 @@ namespace MaterialCalc
         }
 
         public static void SubAssembleFill(Assemble assemble, Assemble AssembleItem)
-        {   
-            
+        {   ShowAllTable(assemble);
+            Console.WriteLine("Находимся в узле {0}",AssembleItem.GetName());
             Console.Write("Кол-во подсборок в узле:");
             int assembleCount=Convert.ToInt32(Console.ReadLine());
 
@@ -246,14 +246,14 @@ namespace MaterialCalc
 
             for(int i=1; i<=assembleCount;i++)
             {
-                SubAssembleFill(assemble,assemble.GetAssembleItem(i-1));
+                SubAssembleFill(assemble,AssembleItem.GetAssembleItem(i-1));
             }
             return ;
         }
 
         public static void ShowAllTable(Assemble assemble)
         {
-            Console.Clear();
+                Console.Clear();
                 string tableRow=TableRow("Название", "Материал", "Параметр", "Количество");
                 Console.WriteLine(tableRow);
                     for (int i=0; i < tableRow.Length; i++)

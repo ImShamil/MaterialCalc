@@ -84,10 +84,17 @@ namespace MaterialCalc
             {
                 return assemblesList;
             }
-
+            public int GetAssebleListCount()
+            {
+                return assemblesList.Count;
+            }
             public List<Part> GetPartList()
             {
                 return partList;
+            }
+            public int GetPartListCount()
+            {
+                return partList.Count;
             }
            
         }
@@ -185,22 +192,38 @@ namespace MaterialCalc
             }
         }
 
-        public static void showAssembles(Assemble assemble)
-        {
-            Console.WriteLine("|{0,20}|{1,20}|{2,20}|{3,20}|",assemble.GetName(),"","", assemble.GetCount());
-        
-            foreach (Assemble assemleItem in assemble.GetAssembleList())
-            {   
-                showAssembles(assemleItem);
+        public static void showAssembles(Assemble assemble,int repeat=0,string step="")
+        {   
+            string stepAssambleName=step+assemble.GetName();
+            Console.WriteLine($"|{stepAssambleName,-20}|{"",-20}|{"",-20}|{assemble.GetCount(),20}|" );
+            repeat++;
+            string Newstep=new String(' ', repeat);
+           foreach( Assemble assembleItem in assemble.GetAssembleList())
+            {  
+                showAssembles(assembleItem,repeat,Newstep);
             }
-            foreach (Part partItem in assemble.GetPartList())
-            {
-                 string tableRow = TableRow(partItem.GetName(), partItem.GetMaterial(), Convert.ToString(partItem.GetParam()),Convert.ToString(partItem.GetQuantiti()));
-                 Console.WriteLine(tableRow);
-            }
-           
-            return;
+           foreach (Part partItem in assemble.GetPartList())
+           {    
+                string stepPartName=Newstep+partItem.GetName();
+                Console.WriteLine($"|{stepPartName,-20}|{partItem.GetMaterial(),-20}|{Convert.ToString(partItem.GetParam()),-20}|{Convert.ToString(partItem.GetQuantiti()),20}|");
+                 
+           }
         }
+
+         public static void ShowAllTable(Assemble assemble)
+        {
+                Console.Clear();
+                string tableRow=TableRow("Название", "Материал", "Параметр", "Количество");
+                Console.WriteLine(tableRow);
+                    for (int i=0; i < tableRow.Length; i++)
+                    {
+                        Console.Write('_');
+                    }
+                    Console.Write('\n');
+                 showAssembles(assemble);
+                 Console.Write('\n');
+        }
+
 
         public static void SubAssembleFill(Assemble assemble, Assemble AssembleItem)
         {   ShowAllTable(assemble);
@@ -251,19 +274,7 @@ namespace MaterialCalc
             return ;
         }
 
-        public static void ShowAllTable(Assemble assemble)
-        {
-                Console.Clear();
-                string tableRow=TableRow("Название", "Материал", "Параметр", "Количество");
-                Console.WriteLine(tableRow);
-                    for (int i=0; i < tableRow.Length; i++)
-                    {
-                        Console.Write('_');
-                    }
-                    Console.Write('\n');
-
-                 showAssembles(assemble);
-        }
+       
 
         static void Main(string[] args)
         {   

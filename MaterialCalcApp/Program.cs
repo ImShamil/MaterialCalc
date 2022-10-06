@@ -202,20 +202,67 @@ namespace MaterialCalc
             return;
         }
 
-        public static void SubAssembleFill(Assemble assemble)
-        {    Console.WriteLine("Начинаем?");
-            foreach (Assemble assemleItem in assemble.GetAssembleList())
+        public static void SubAssembleFill(Assemble assemble, Assemble AssembleItem)
+        {   
+            
+            Console.Write("Кол-во подсборок в узле:");
+            int assembleCount=Convert.ToInt32(Console.ReadLine());
+
+            for (int i=1; i<=assembleCount;i++)
             {
-               AssembleFill(assemleItem);
-                Console.WriteLine("Закончить?");
-               string key=Console.ReadLine();
-                if (key == "y")
-                {
-                    return;
-                }
-               SubAssembleFill(assemleItem);
-               
+                Console.Write("Название подсборки:");
+                string assembleName=Console.ReadLine();
+            
+                Console.Write("Кол-во:");
+                int totalCount=Convert.ToInt32(Console.ReadLine());
+                
+                Assemble subAssemble=new Assemble(assembleName,totalCount);
+
+                AssembleItem.AddAssemble(subAssemble);
+                ShowAllTable(assemble);
             }
+            Console.Write("Кол-во деталей в узле:");
+            int partCount=Convert.ToInt32(Console.ReadLine());
+
+            for(int i=1; i <= partCount; i++)
+            {
+                 Console.Write("Введите название детали:");
+                string name = Console.ReadLine();
+                Console.Write("Введите название материала:");
+                string material = Console.ReadLine();
+                Console.Write("Введите контролируемый параметр:");
+                string param = Console.ReadLine();
+                Console.Write("Введите кол-во:");
+                string quantity = Console.ReadLine();
+
+                if (param.Contains('.'))
+                {
+                   param = param.Replace('.', ',');
+                }
+                Part part = new Part(name, material,param,quantity);
+                AssembleItem.AddPart(part);
+                ShowAllTable(assemble);
+            }
+
+            for(int i=1; i<=assembleCount;i++)
+            {
+                SubAssembleFill(assemble,assemble.GetAssembleItem(i-1));
+            }
+            return ;
+        }
+
+        public static void ShowAllTable(Assemble assemble)
+        {
+            Console.Clear();
+                string tableRow=TableRow("Название", "Материал", "Параметр", "Количество");
+                Console.WriteLine(tableRow);
+                    for (int i=0; i < tableRow.Length; i++)
+                    {
+                        Console.Write('_');
+                    }
+                    Console.Write('\n');
+
+                 showAssembles(assemble);
         }
 
         static void Main(string[] args)
@@ -228,24 +275,8 @@ namespace MaterialCalc
             int totalCount=Convert.ToInt32(Console.ReadLine());
            
             Assemble assemble=new Assemble(assembleName,totalCount);
-            AssembleFill(assemble);
-            while (true)
-            {
-                Console.Clear();
-                string tableRow=TableRow("Название", "Материал", "Параметр", "Количество");
-                Console.WriteLine(tableRow);
-                    for (int i=0; i < tableRow.Length; i++)
-                    {
-                        Console.Write('_');
-                    }
-                    Console.Write('\n');
-
-                 showAssembles(assemble);
-
-                 //Console.Write("Выбери редактируюмую подсборку:");
-                 //int answer=Convert.ToInt32(Console.ReadLine())-1;
-                 SubAssembleFill(assemble);
-            }
+            
+           SubAssembleFill(assemble,assemble);
 
             
             

@@ -18,10 +18,11 @@ namespace MaterialCalc
         {
             string name;
             int count;
+            int totalCount;
             List <Assemble> assemblesList;
             List <Part> partList;
            
-            public Assemble (string name, int count)
+            public Assemble (string name, int count, int assembleCount=1 )
             {
                 if (name=="")
                 {
@@ -35,6 +36,7 @@ namespace MaterialCalc
 
                 this.name = name;
                 this.count = count;
+                this.totalCount=count *assembleCount;
                 assemblesList=new List<Assemble>(); //здесь лежат подсборки
                 partList=new List<Part>();//здесь лежат детали
             }
@@ -47,6 +49,11 @@ namespace MaterialCalc
             public int GetCount()
             {
                 return this.count;
+            }
+
+            public int GetTotalCount()
+            {
+                return this.totalCount;
             }
 
             public void AddAssemble (Assemble assemble)
@@ -153,7 +160,8 @@ namespace MaterialCalc
         public static void showAssembles(Assemble assemble,int repeat=0,string step="")
         {   
             string stepAssambleName=step+assemble.GetName();
-            Console.WriteLine($"|{stepAssambleName,-20}|{"",-20}|{"",-20}|{assemble.GetCount(),20}|" );
+            string quantityStringAssemble=$"{Convert.ToString(assemble.GetTotalCount())}"+$"({assemble.GetCount()})";
+            Console.WriteLine($"|{stepAssambleName,-20}|{"",-20}|{"",-20}|{quantityStringAssemble,20}|" );
             repeat++;
             string Newstep=new String(' ', repeat);
            foreach( Assemble assembleItem in assemble.GetAssembleList())
@@ -202,7 +210,7 @@ namespace MaterialCalc
                 Console.Write("Кол-во:");
                 int totalCount=Convert.ToInt32(Console.ReadLine());
                 
-                Assemble subAssemble=new Assemble(assembleName,totalCount);
+                Assemble subAssemble=new Assemble(assembleName,totalCount,assembleItem.GetTotalCount());
 
                 assembleItem.AddAssemble(subAssemble);
                 ShowAllTable(assemble);
@@ -225,7 +233,7 @@ namespace MaterialCalc
                 {
                    param = param.Replace('.', ',');
                 }
-                Part part = new Part(name, material,param,quantity,Convert.ToInt32(assembleItem.GetCount()));
+                Part part = new Part(name, material,param,quantity,Convert.ToInt32(assembleItem.GetTotalCount()));
                 assembleItem.AddPart(part);
                 ShowAllTable(assemble);
             }

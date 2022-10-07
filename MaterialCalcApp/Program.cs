@@ -161,7 +161,7 @@ namespace MaterialCalc
         {   
             string stepAssambleName=step+assemble.GetName();
             string quantityStringAssemble=$"{Convert.ToString(assemble.GetTotalCount())}"+$"({assemble.GetCount()})";
-            Console.WriteLine($"|{stepAssambleName,-20}|{"",-20}|{"",-20}|{quantityStringAssemble,20}|" );
+            Console.WriteLine($"|{stepAssambleName,-20}|{"",-20}|{"",-20}|{quantityStringAssemble,20}|{"",-20}|" );
             repeat++;
             string Newstep=new String(' ', repeat);
            foreach( Assemble assembleItem in assemble.GetAssembleList())
@@ -172,7 +172,7 @@ namespace MaterialCalc
            {    
                 string stepPartName=Newstep+partItem.GetName();
                 string quantityString = $"{Convert.ToString(partItem.GetTotalQuantiti())}"+$"({Convert.ToString(partItem.GetQuantiti())})";
-                Console.WriteLine($"|{stepPartName,-20}|{partItem.GetMaterial(),-20}|{Convert.ToString(partItem.GetParam()),-20}|{quantityString,20}|");
+                Console.WriteLine($"|{stepPartName,-20}|{partItem.GetMaterial(),-20}|{Convert.ToString(partItem.GetParam()),-20}|{quantityString,20}|{Convert.ToString(partItem.GetTotal()),20}|");
                  
            }
         }

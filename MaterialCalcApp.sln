@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MaterialCalc", "ConsoleApp6\MaterialCalc.csproj", "{A20D16E0-34A3-4915-A517-93573C88BF35}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MaterialCalc", "MaterialCalcApp\MaterialCalc.csproj", "{A20D16E0-34A3-4915-A517-93573C88BF35}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

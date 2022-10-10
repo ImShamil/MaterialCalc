@@ -190,7 +190,7 @@ namespace MaterialCalc
             }
         }
 
-        public static void ShowAllTable(Assemble assemble, Dictionary<string, double> finalList)
+        public static void ShowAllTable(Assemble assemble, Dictionary<string, double> finalList,int totalCount)
         {
             Console.Clear();
             string tableHead = TableHead("Название", "Материал", "Параметр", "Количество", "Всего");
@@ -206,13 +206,13 @@ namespace MaterialCalc
                 Console.Write('_');
             }
             Console.Write('\n');
-            ShowFinalList(finalList);
+            ShowFinalList(finalList,totalCount);
             Console.Write('\n');
         }
 
 
-        public static void AssembleFill(Assemble assemble, Assemble assembleItem, Dictionary<string, double> finalList)
-        { ShowAllTable(assemble,finalList);
+        public static void AssembleFill(Assemble assemble, Assemble assembleItem, Dictionary<string, double> finalList, int assembleTotalCount)
+        { ShowAllTable(assemble,finalList,assembleTotalCount);
           
             Console.WriteLine("Находимся в узле {0}", assembleItem.GetName());
             Console.Write("Кол-во подсборок в узле:");
@@ -230,7 +230,7 @@ namespace MaterialCalc
 
                 assembleItem.AddAssemble(subAssemble);
                
-                ShowAllTable(assemble, finalList);
+                ShowAllTable(assemble, finalList,assembleTotalCount);
             }
             Console.Write("Кол-во деталей в узле:");
             int partCount = Convert.ToInt32(Console.ReadLine());
@@ -239,12 +239,12 @@ namespace MaterialCalc
             {
                 Console.Write($"Введите название детали №{i}:");
                 string name = Console.ReadLine();
+                Console.Write("Введите кол-во:");
+                string quantity = Console.ReadLine();
                 Console.Write("Введите название материала:");
                 string material = Console.ReadLine();
                 Console.Write("Введите контролируемый параметр:");
                 string param = Console.ReadLine();
-                Console.Write("Введите кол-во:");
-                string quantity = Console.ReadLine();
 
                 if (param.Contains('.'))
                 {
@@ -271,20 +271,20 @@ namespace MaterialCalc
                     }
                 }
                
-                ShowAllTable(assemble, finalList);
+                ShowAllTable(assemble, finalList,assembleTotalCount);
             }
 
             for (int i = 1; i <= assembleCount; i++)
             {
-                AssembleFill(assemble, assembleItem.GetAssembleItem(i - 1), finalList);
+                AssembleFill(assemble, assembleItem.GetAssembleItem(i - 1), finalList,assembleTotalCount);
             }
             return;
         }
-        public static void ShowFinalList(Dictionary<string, double> finalList)
+        public static void ShowFinalList(Dictionary<string, double> finalList,int totalCount)
         {
             foreach(var item in finalList)
             {
-                Console.WriteLine($"{item.Key}............{item.Value}");
+                Console.WriteLine($"{item.Key}............{item.Value}({item.Value/Convert.ToDouble(totalCount)})");
             }
         }
     static void Main(string[] args)
@@ -299,7 +299,7 @@ namespace MaterialCalc
             Assemble assemble=new Assemble(assembleName,totalCount);
             var finalList = new Dictionary<string, double>();
 
-            AssembleFill(assemble,assemble, finalList);
+            AssembleFill(assemble,assemble, finalList, totalCount );
             
         }
     }

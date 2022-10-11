@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace MaterialCalc
 {
     internal class Program
@@ -300,7 +301,6 @@ namespace MaterialCalc
             var finalList = new Dictionary<string, double>();
 
             AssembleFill(assemble,assemble, finalList, totalCount );
-            
         }
     }
 }

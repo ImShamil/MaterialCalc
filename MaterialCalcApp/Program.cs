@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
+using System.Windows.Forms;
+using System.Security.Cryptography;
 
 
 namespace MaterialCalc
@@ -10,17 +14,22 @@ namespace MaterialCalc
     internal class Program
     {
         const int stringSize = 30;
-        public static string TableHead(string cellName, string cellMaterial, string cellParam, string cellQuantiti, string cellTotal)
+        public static string TableHead(string cellType, string cellName, string cellMaterial, string cellParam, string cellQuantiti, string cellTotal)
         {
-            string tableHead = ($"|{cellName,stringSize}|{cellMaterial,stringSize}|{cellParam,stringSize}|{cellQuantiti,stringSize}|{cellTotal,stringSize}|");
+            string tableHead = ($"|{cellType,3}|{cellName,stringSize}|{cellMaterial,stringSize}|{cellParam,stringSize}|{cellQuantiti,stringSize}|{cellTotal,stringSize}|");
             return tableHead;
         }
-        public static void TableContent(string cellName, string cellMaterial, string cellParam, string cellQuantiti, string cellTotal)
+        public static void TableContent(string cellType, string cellName, string cellMaterial, string cellParam, string cellQuantiti, string cellTotal)
         {
-            string tableContent = ($"|{cellName,-stringSize}|{cellMaterial,stringSize}|{cellParam,stringSize}|{cellQuantiti,stringSize}|{cellTotal,stringSize}|");
+            string tableContent = ($"|{cellType,3}|{cellName,-stringSize}|{cellMaterial,stringSize}|{cellParam,stringSize}|{cellQuantiti,stringSize}|{cellTotal,stringSize}|");
             Console.WriteLine(tableContent);
         }
 
+        public static void WriteTableContent(StreamWriter sw, string cellType, string cellName, string cellMaterial, string cellParam, string cellQuantiti, string cellTotal)
+        {
+            string tableContent = ($"|{cellType,3}|{cellName,-stringSize}|{cellMaterial,stringSize}|{cellParam,stringSize}|{cellQuantiti,stringSize}|{cellTotal,stringSize}|");
+            sw.WriteLine(tableContent);
+        }
 
         public struct Assemble
         {
@@ -171,50 +180,57 @@ namespace MaterialCalc
         };
 
 
-        public static void showAssembles(Assemble assemble, int repeat = 0, string step = "")
+        public static void showAssembles(Assemble assemble, string[] list, int repeat = 0, string step = "" )
         {
             string stepAssambleName = step + assemble.GetName();
             string quantityStringAssemble = $"{Convert.ToString(assemble.GetTotalCount())}" + $"({assemble.GetCount()})";
-            TableContent(stepAssambleName, "", "", quantityStringAssemble, "");
+            string table = TableHead("C", stepAssambleName, "", "", quantityStringAssemble, "");
+            Console.WriteLine(table);
+            list.Append(table);
             repeat++;
             string Newstep = new String(' ', repeat);
             foreach (Assemble assembleItem in assemble.GetAssembleList())
             {
-                showAssembles(assembleItem, repeat, Newstep);
+                showAssembles(assembleItem, list);
             }
             foreach (Part partItem in assemble.GetPartList())
             {
                 string stepPartName = Newstep + partItem.GetName();
                 string quantityString = $"{Convert.ToString(partItem.GetTotalQuantiti())}" + $"({Convert.ToString(partItem.GetQuantiti())})";
                 string totalForOneString = $"{Convert.ToString(partItem.GetTotal())}" + $"({Convert.ToString(partItem.GetTotalForOne())})";
-                TableContent(stepPartName, partItem.GetMaterial(), Convert.ToString(partItem.GetParam()), quantityString, totalForOneString);
+                
+                string tablePart= TableHead("Д", stepPartName, partItem.GetMaterial(), Convert.ToString(partItem.GetParam()), quantityString, totalForOneString);
+                Console.WriteLine(tablePart);
+                list.Append(tablePart);
             }
         }
 
-        public static void ShowAllTable(Assemble assemble, Dictionary<string, double> finalList,int totalCount)
+        public static void ShowAllTable(Assemble assemble, Dictionary<string, double> finalList, int totalCount, string[] list)
         {
             Console.Clear();
-            string tableHead = TableHead("Название", "Материал", "Параметр", "Количество", "Всего");
+            string tableHead = TableHead("Тип", "Название", "Материал", "Параметр", "Количество", "Всего");
             Console.WriteLine(tableHead);
+            list.Append(tableHead);
             for (int i = 0; i < tableHead.Length; i++)
             {
                 Console.Write('_');
             }
             Console.Write('\n');
-            showAssembles(assemble);
+            showAssembles(assemble,list);
             for (int i = 0; i < tableHead.Length; i++)
             {
                 Console.Write('_');
             }
             Console.Write('\n');
-            ShowFinalList(finalList,totalCount);
+            ShowFinalList(finalList, totalCount);
             Console.Write('\n');
         }
 
 
-        public static void AssembleFill(Assemble assemble, Assemble assembleItem, Dictionary<string, double> finalList, int assembleTotalCount)
-        { ShowAllTable(assemble,finalList,assembleTotalCount);
-          
+        public static void AssembleFill(Assemble assemble, Assemble assembleItem, Dictionary<string, double> finalList, int assembleTotalCount, string[] list)
+        {
+            ShowAllTable(assemble, finalList, assembleTotalCount,list);
+
             Console.WriteLine("Находимся в узле {0}", assembleItem.GetName());
             Console.Write("Кол-во подсборок в узле:");
             int assembleCount = Convert.ToInt32(Console.ReadLine());
@@ -230,8 +246,8 @@ namespace MaterialCalc
                 Assemble subAssemble = new Assemble(assembleName, totalCount, assembleItem.GetTotalCount());
 
                 assembleItem.AddAssemble(subAssemble);
-               
-                ShowAllTable(assemble, finalList,assembleTotalCount);
+
+                ShowAllTable(assemble, finalList, assembleTotalCount, list);
             }
             Console.Write("Кол-во деталей в узле:");
             int partCount = Convert.ToInt32(Console.ReadLine());
@@ -257,7 +273,7 @@ namespace MaterialCalc
                 if (finalList.Count == 0)
                 {
                     finalList.Add(part.GetMaterial(), part.GetTotal());
-                    
+
                 }
                 else
                 {
@@ -271,36 +287,78 @@ namespace MaterialCalc
                         finalList.Add(part.GetMaterial(), part.GetTotal());
                     }
                 }
-               
-                ShowAllTable(assemble, finalList,assembleTotalCount);
+
+                ShowAllTable(assemble, finalList, assembleTotalCount, list);
             }
 
             for (int i = 1; i <= assembleCount; i++)
             {
-                AssembleFill(assemble, assembleItem.GetAssembleItem(i - 1), finalList,assembleTotalCount);
+                AssembleFill(assemble, assembleItem.GetAssembleItem(i - 1), finalList, assembleTotalCount, list);
             }
             return;
         }
-        public static void ShowFinalList(Dictionary<string, double> finalList,int totalCount)
+        public static void ShowFinalList(Dictionary<string, double> finalList, int totalCount)
         {
-            foreach(var item in finalList)
+            foreach (var item in finalList)
             {
-                Console.WriteLine($"{item.Key}............{item.Value}({item.Value/Convert.ToDouble(totalCount)})");
+                Console.WriteLine($"{item.Key}............{item.Value}({item.Value / Convert.ToDouble(totalCount)})");
             }
         }
-    static void Main(string[] args)
-        {   
+
+        public static void OpenFile(Assemble assemble, string[] list)
+        {
+            Console.WriteLine("Выберите папку с чертежами.");
+
+            FolderBrowserDialog ofd = new FolderBrowserDialog();
+
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                Console.WriteLine($"Выбрана папка: {ofd.SelectedPath}");
+                WriteFile(ofd, assemble,list);
+                Console.ReadLine();
+            }
+        }
+
+        public static void WriteFile(FolderBrowserDialog ofd, Assemble assemble,string[] list)
+        {
+            try
+            {
+                StreamWriter sw = new StreamWriter($"{ofd.SelectedPath}\\Результат.txt");
+                foreach(string row in list)
+                {
+                    sw.WriteLine(row);
+                }
+                
+                sw.Close();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception: " + e.Message);
+            }
+            finally
+            {
+                Console.WriteLine("Executing finally block.");
+            }
+        }
+        [STAThread]
+        static void Main(string[] args)
+        {
             //List <Part> partList=new List<Part>();
             Console.Write("Название изделия:");
-            string assembleName=Console.ReadLine();
-            
-            Console.Write("Кол-во изделий:");
-            int totalCount=Convert.ToInt32(Console.ReadLine());
-           
-            Assemble assemble=new Assemble(assembleName,totalCount);
-            var finalList = new Dictionary<string, double>();
+            string assembleName = Console.ReadLine();
 
-            AssembleFill(assemble,assemble, finalList, totalCount );
+            Console.Write("Кол-во изделий:");
+            int totalCount = Convert.ToInt32(Console.ReadLine());
+
+            Assemble assemble = new Assemble(assembleName, totalCount);
+            var finalList = new Dictionary<string, double>();
+            string[] list= new string[] { };
+            AssembleFill(assemble, assemble, finalList, totalCount, list);
+            foreach (string row in list)
+            {
+                Console.WriteLine(row);
+            }
+            OpenFile(assemble, list);
         }
     }
 }

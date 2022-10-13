@@ -116,7 +116,7 @@ namespace MaterialCalc
             double total;
             double totalForOne;
 
-            public Part(string name, string material, string param, string quantity, int assembleQuantity)
+            public Part(string name, string material, double param, int quantity, int assembleQuantity)
             {
                 if (name == "")
                 {
@@ -127,19 +127,11 @@ namespace MaterialCalc
                 {
                     material = "Ст3";
                 }
-                if (param == "")
-                {
-                    param = "1";
-                }
-                if (quantity == "")
-                {
-                    quantity = "1";
-                }
-
+                
                 this.name = name;
                 this.material_name = material.ToLower();
-                this.param = Convert.ToDouble(param);
-                this.quantity = Convert.ToInt32(quantity);
+                this.param = param;
+                this.quantity = quantity;
                 this.totalQuantity = this.quantity * assembleQuantity;
                 this.total = this.param * Convert.ToDouble(totalQuantity);
                 this.totalForOne = this.param * this.quantity;
@@ -232,7 +224,8 @@ namespace MaterialCalc
 
             Console.WriteLine("Находимся в узле {0}", assembleItem.GetName());
             Console.Write("Кол-во подсборок в узле:");
-            int assembleCount = Convert.ToInt32(Console.ReadLine());
+            string assemlbeCountInput = Console.ReadLine();
+            int assembleCount = TryParseInt(assemlbeCountInput);
 
             for (int i = 1; i <= assembleCount; i++)
             {
@@ -240,8 +233,9 @@ namespace MaterialCalc
                 string assembleName = Console.ReadLine();
 
                 Console.Write("Кол-во:");
-                int totalCount = Convert.ToInt32(Console.ReadLine());
-
+                string subAssemlbeCountInput = Console.ReadLine();
+                int totalCount= TryParseInt(subAssemlbeCountInput);
+               
                 Assemble subAssemble = new Assemble(assembleName, totalCount, assembleItem.GetTotalCount());
 
                 assembleItem.AddAssemble(subAssemble);
@@ -249,23 +243,22 @@ namespace MaterialCalc
                 ShowAllTable(assemble, finalList, assembleTotalCount, list);
             }
             Console.Write("Кол-во деталей в узле:");
-            int partCount = Convert.ToInt32(Console.ReadLine());
+            string partCountInput = Console.ReadLine();
+            int partCount = TryParseInt(partCountInput);
 
             for (int i = 1; i <= partCount; i++)
             {
                 Console.Write($"Введите название детали №{i}:");
                 string name = Console.ReadLine();
                 Console.Write("Введите кол-во:");
-                string quantity = Console.ReadLine();
+                string quantityInput = Console.ReadLine();
+                int quantity = TryParseInt(quantityInput);
                 Console.Write("Введите название материала:");
                 string material = Console.ReadLine();
                 Console.Write("Введите контролируемый параметр:");
-                string param = Console.ReadLine();
+                string paramInput = Console.ReadLine();
+                double param = TryParseDouble(paramInput);
 
-                if (param.Contains('.'))
-                {
-                    param = param.Replace('.', ',');
-                }
                 Part part = new Part(name, material, param, quantity, Convert.ToInt32(assembleItem.GetTotalCount()));
                 assembleItem.AddPart(part);
 
@@ -296,6 +289,7 @@ namespace MaterialCalc
             }
             return;
         }
+
         public static void ShowFinalList(Dictionary<string, double> finalList, int totalCount)
         {
             foreach (var item in finalList)
@@ -303,6 +297,53 @@ namespace MaterialCalc
                 Console.WriteLine($"{item.Key}............{item.Value}({item.Value / Convert.ToDouble(totalCount)})");
             }
         }
+
+        public static int TryParseInt(string input)
+        {
+            bool parseResult = int.TryParse(input, out var result);
+
+            if (!parseResult)
+            {
+
+                while (!parseResult)
+                {
+                    Console.WriteLine("Невереный ввод! Повторите снова!");
+                    Console.Write("Кол-во:");
+                    input = Console.ReadLine();
+                    parseResult = int.TryParse(input, out result);
+                }
+            }
+            return result;
+        }
+
+        public static double TryParseDouble(string input)
+        {
+            if (input.Contains('.'))
+            {
+                input = input.Replace('.', ',');
+            }
+
+            bool parseResult = double.TryParse(input, out var result);
+
+            if (!parseResult)
+            {
+
+                while (!parseResult)
+                {
+                    Console.WriteLine("Невереный ввод!Повторите снова!");
+                    Console.Write("Кол-во:");
+                    input = Console.ReadLine();
+                    if (input.Contains('.'))
+                    {
+                        input = input.Replace('.', ',');
+                    }
+                    parseResult = double.TryParse(input, out result);
+                }
+            }
+            return result;
+        }
+
+
 
         public static void OpenFile(Assemble assemble, List<string> list)
         {
@@ -347,7 +388,8 @@ namespace MaterialCalc
             string assembleName = Console.ReadLine();
 
             Console.Write("Кол-во изделий:");
-            int totalCount = Convert.ToInt32(Console.ReadLine());
+            string totalCountInput = Console.ReadLine();
+            int totalCount = TryParseInt(totalCountInput);
 
             Assemble assemble = new Assemble(assembleName, totalCount);
             var finalList = new Dictionary<string, double>();

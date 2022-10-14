@@ -8,6 +8,10 @@ using System.Xml.Linq;
 using System.Windows.Forms;
 using System.Security.Cryptography;
 
+using OfficeOpenXml.Drawing.Chart;
+using OfficeOpenXml.Style;
+using OfficeOpenXml;
+
 
 namespace MaterialCalc
 {
@@ -331,7 +335,7 @@ namespace MaterialCalc
                 while (!parseResult)
                 {
                     Console.WriteLine("Невереный ввод!Повторите снова!");
-                    Console.Write("Кол-во:");
+                    Console.Write("Введите контролируемый параметр:");
                     input = Console.ReadLine();
                     if (input.Contains('.'))
                     {
@@ -380,6 +384,67 @@ namespace MaterialCalc
                 Console.WriteLine("Завершение работы...");
             }
         }
+
+        public static void GenerateEcxel(Assemble assemble)
+        {
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            var package = new ExcelPackage();
+
+            ExcelWorksheet sheet = package.Workbook.Worksheets
+                .Add("Результаты");
+
+            sheet.Cells["A1"].Value = "Название";
+            sheet.Cells["B1"].Value = "Материал";
+            sheet.Cells["C1"].Value = "Кол-во";
+            sheet.Cells["D1"].Value = "Площадь или длина";
+            sheet.Cells["E1"].Value = "Сумма";
+
+            //sheet.cells[8, 2, 8, 4].loadfromarrays(new object[][] { new[] { "capitalization", "shareprice", "date" } });
+            //var row = 9;
+            //var column = 2;
+            //foreach (var item in report.history)
+            //{
+            //    sheet.cells[row, column].value = item.capitalization;
+            //    sheet.cells[row, column + 1].value = item.shareprice;
+            //    sheet.cells[row, column + 2].value = item.date;
+            //    row++;
+            //}
+
+            //sheet.cells[1, 1, row, column + 2].autofitcolumns();
+            //sheet.column(2).width = 14;
+            //sheet.column(3).width = 12;
+
+            //sheet.cells[9, 4, 9 + report.history.length, 4].style.numberformat.format = "yyyy";
+            //sheet.cells[9, 2, 9 + report.history.length, 2].style.numberformat.format = "### ### ### ##0";
+
+            //sheet.column(2).style.horizontalalignment = excelhorizontalalignment.left;
+            //sheet.cells[8, 3, 8 + report.history.length, 3].style.horizontalalignment = excelhorizontalalignment.center;
+            //sheet.column(4).style.horizontalalignment = excelhorizontalalignment.right;
+
+            //sheet.cells[8, 2, 8, 4].style.font.bold = true;
+            //sheet.cells["b2:c4"].style.font.bold = true;
+
+            //sheet.cells[8, 2, 8 + report.history.length, 4].style.border.borderaround(excelborderstyle.double);
+            //sheet.cells[8, 2, 8, 4].style.border.bottom.style = excelborderstyle.thin;
+
+            //var capitalizationchart = sheet.drawings.addchart("findingschart", officeopenxml.drawing.chart.echarttype.line);
+            //capitalizationchart.title.text = "capitalization";
+            //capitalizationchart.setposition(7, 0, 5, 0);
+            //capitalizationchart.setsize(800, 400);
+            //var capitalizationdata = (excelchartserie)(capitalizationchart.series.add(sheet.cells["b9:b28"], sheet.cells["d9:d28"]));
+            //capitalizationdata.header = report.company.currency;
+
+            //sheet.Protection.IsProtected = true;
+            
+            byte [] excel = package.GetAsByteArray();
+            File.WriteAllBytes("..\\Результаты.xlsx", excel);
+            //FileInfo fi = new FileInfo(filePath);
+            //package.SaveAs(fi);
+        }
+
+
+
+
         [STAThread]
         static void Main(string[] args)
         {
@@ -396,6 +461,7 @@ namespace MaterialCalc
             List<string> list = new List<string>();
             AssembleFill(assemble, assemble, finalList, totalCount, list);
             OpenFile(assemble, list);
+            GenerateEcxel(assemble); 
         }
     }
 }

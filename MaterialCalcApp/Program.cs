@@ -11,6 +11,7 @@ using System.Security.Cryptography;
 using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Style;
 using OfficeOpenXml;
+using static MaterialCalc.Program;
 
 
 namespace MaterialCalc
@@ -349,7 +350,7 @@ namespace MaterialCalc
 
 
 
-        public static void OpenFile(Assemble assemble, List<string> list)
+        public static void OpenFile(List<string> list)
         {
             Console.WriteLine("Выберите папку сохранения результатов");
 
@@ -358,12 +359,12 @@ namespace MaterialCalc
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 Console.WriteLine($"Выбрана папка: {ofd.SelectedPath}");
-                WriteFile(ofd, assemble,list);
+                WriteFile(ofd,list);
                 Console.ReadLine();
             }
         }
 
-        public static void WriteFile(FolderBrowserDialog ofd, Assemble assemble, List<string> list)
+        public static void WriteFile(FolderBrowserDialog ofd, List<string> list)
         {
             try
             {
@@ -387,6 +388,7 @@ namespace MaterialCalc
 
         public static void GenerateEcxel(Assemble assemble)
         {
+            
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             var package = new ExcelPackage();
 
@@ -395,9 +397,11 @@ namespace MaterialCalc
 
             sheet.Cells["A1"].Value = "Название";
             sheet.Cells["B1"].Value = "Материал";
-            sheet.Cells["C1"].Value = "Кол-во";
-            sheet.Cells["D1"].Value = "Площадь или длина";
-            sheet.Cells["E1"].Value = "Сумма";
+            sheet.Cells["C1"].Value = "Кол-во на единицу";
+            sheet.Cells["D1"].Value = "Общее кол-во";
+            sheet.Cells["E1"].Value = "Площадь или длина на единицу";
+            sheet.Cells["F1"].Value = "Сумма";
+            ExcelGen(assemble, sheet);
 
             //sheet.cells[8, 2, 8, 4].loadfromarrays(new object[][] { new[] { "capitalization", "shareprice", "date" } });
             //var row = 9;
@@ -435,14 +439,56 @@ namespace MaterialCalc
             //capitalizationdata.header = report.company.currency;
 
             //sheet.Protection.IsProtected = true;
-            
+
             byte [] excel = package.GetAsByteArray();
             File.WriteAllBytes("..\\Результаты.xlsx", excel);
             //FileInfo fi = new FileInfo(filePath);
             //package.SaveAs(fi);
         }
 
+        public static int ExcelGen(Assemble assemble, ExcelWorksheet sheet, int assembleLine = 0, int repeat = 0, int line = 2, string step = " ")
+        {
+            
+            string stepAssambleName = step + assemble.GetName();
+            repeat++;
+            string newstep = new String(' ', repeat);
+            sheet.Cells[$"A{line}"].Value = stepAssambleName;
+            if (line == 2)
+            {
+                sheet.Cells[$"C{line}"].Value = 1;
+            }
+            else
+            {
+                sheet.Cells[$"C{line}"].Value = Convert.ToString(assemble.GetCount());
+            }
 
+            if (line != 2)
+            {
+                sheet.Cells[$"D{line}"].Formula = $"C{line}*D{assembleLine}";
+            }
+            else
+            {
+                sheet.Cells[$"D{line}"].Value = Convert.ToString(assemble.GetCount());
+            }
+            assembleLine = line;
+            foreach (Assemble assembleItem in assemble.GetAssembleList())
+            {
+                line++;
+                line = ExcelGen(assembleItem, sheet, assembleLine, repeat, line, newstep);
+            }
+            foreach (Part partItem in assemble.GetPartList())
+            {
+                line++;
+                string stepPartName = newstep + partItem.GetName();
+                sheet.Cells[$"A{line}"].Value = stepPartName;
+                sheet.Cells[$"B{line}"].Value = partItem.GetMaterial();
+                sheet.Cells[$"C{line}"].Value = Convert.ToString(partItem.GetTotalQuantiti());
+                sheet.Cells[$"D{line}"].Formula = $"C{line}*D{assembleLine}";
+                sheet.Cells[$"E{line}"].Value = Convert.ToString(partItem.GetParam());
+                sheet.Cells[$"F{line}"].Formula = $"E{line}*D{line}";
+            }
+            return line;
+        }
 
 
         [STAThread]
@@ -460,7 +506,7 @@ namespace MaterialCalc
             var finalList = new Dictionary<string, double>();
             List<string> list = new List<string>();
             AssembleFill(assemble, assemble, finalList, totalCount, list);
-            OpenFile(assemble, list);
+            OpenFile(list);
             GenerateEcxel(assemble); 
         }
     }
